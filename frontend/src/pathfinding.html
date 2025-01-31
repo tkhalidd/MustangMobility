@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathfinding Map</title>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link rel="stylesheet" href="/frontend/src/styles.css">
+</head>
+<body>
+<!-- Sidebar Navigation -->
+<div class="sidebar">
+    <img src="/frontend/src/PICS/path-w.png" alt="Path Icon">
+    <img src="/frontend/src/PICS/map-w.png" alt="Map Icon">
+    <img src="/frontend/src/PICS/heart-w.png" alt="Heart Icon">
+</div>
+
+<!-- Main Content -->
+<div class="main-container">
+    <!-- Input Section -->
+    <div class="input-panel">
+        <h2>Where To?</h2>
+
+        <!-- Filtering Options -->
+        <div class="input-row">
+            <label for="filter">Filter Nearby:</label>
+            <select id="filter">
+                <option value="no_filter">No Filter Applied</option>
+                <option value="ramp">Ramp</option>
+                <option value="open_now">Open Now</option>
+            </select>
+        </div>
+
+        <!-- Stops Container -->
+        <div id="stops-container">
+            <div class="stop">
+                <img src="/frontend/src/PICS/pin.png" alt="Pin Icon" class="pin-icon">
+                <input type="text" placeholder="Stop 1" list="locations">
+            </div>
+            <div class="stop">
+                <img src="/frontend/src/PICS/pin.png" alt="Pin Icon" class="pin-icon">
+                <input type="text" placeholder="Stop 2" list="locations">
+            </div>
+        </div>
+
+        <!-- Add Stop Button -->
+        <button class="add-stop-btn" onclick="addStop()">+ Add Stop</button>
+
+        <!-- Find Path Button -->
+        <button class="find-path" onclick="findPath()">Find Path</button>
+
+        <!-- In the input-panel div, add this right after the find-path button -->
+        <div id="pathResults" class="results-panel" style="display: none; margin-top: 20px;">
+            <h3>Route Details</h3>
+            <div id="pathDisplay"></div>
+        </div>
+    </div>
+
+    <!-- Map Section -->
+    <div class="map-container">
+        <div id="map"></div>
+    </div>
+
+    <!-- Add this after your existing form/input elements -->
+    <!-- <div id="pathResults" class="results-panel" style="display: none;">
+        <h3>Route Details</h3>
+        <div id="pathDisplay"></div>
+        <div class="route-stats">
+            <div id="distanceDisplay"></div>
+            <div id="durationDisplay"></div>
+        </div>
+    </div> -->
+</div>
+
+<!-- Inline JavaScript -->
+<script>
+    // Global Variables and Configuration
+    mapboxgl.accessToken = 'pk.eyJ1IjoidGs5OTgiLCJhIjoiY200bWNjcmd3MGJpODJrb3YxcGc3dm8xeCJ9.1rbTJI1tS7TEl9EF9BRo7w';
+    let entrancesData = [];
+    let buildingsData = [];
+    let buildingsMap = {};
+    const MAX_STOPS = 5;
+    let stopCount = 2;
+
+    // Initialize Mapbox Map with Custom Style
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/tk998/cm4rbvnsd00cq01s0fwqegshf',
+        center: [-81.27475, 43.00598],
+        zoom: 14,
+        pitch: 45,
+        bearing: -30
+    });
+
+    // Data Loading Functions
+    function loadData() {
+        // Load and parse accessible entrances CSV
+        Papa.parse('../../../data/accessibleentrances.csv', {
+            download: true,
+            header: true,
+            complete: function (results) {
+                console.log("Successfully loaded accessibleentrances.csv");
+                entrancesData = results.data;
+                console.log("Entrances data loaded:", entrancesData.length);
+                
+                Papa.parse('../../../data/buildings.csv', {
+                    download: true,
+                    header: true,
+                    complete: function (results) {
+                        buildingsData = results.data;
+                        console.log("Buildings data loaded:", buildingsData.length);
+                        preprocessBuildingsData();
+                        populateLocationsList();
+                    },
+                    error: function (err) {
+                        console.error("Error loading buildings.csv:", err);
+                    }
+                });
+            },
+            error: function (err) {
+                console.error("Error loading accessibleentrances.csv:", err);
+                console.error("Make sure you're running this through a web server and not directly from the filesystem");
+            }
+        });
+    }
+
+    // Data Processing Functions
+    function preprocessBuildingsData() {
+        // Process building data into a lookup map for quick access
+        buildingsData.forEach(entry => {
+            const code = entry.code?.trim(); // Handle potential whitespace
+            const name = entry.name?.trim();
+            const time = entry.time?.trim();
+            const dining = entry.dining?.trim();
+            const mpr = entry.mpr?.trim();
+            const link = entry.link?.trim();
+
+            // Populate buildingsMap with the code as the key
+            if (code) {
+                buildingsMap[code] = { name, time, dining, mpr, link };
+            }
+        });
+        console.log("Processed Buildings Map:", buildingsMap); // Debugging output
+    }
+
+    // Utility Functions
+    function checkOpenStatus(buildingTime) {
+        // Check if a building is currently open based on its hours
+        if (!buildingTime) return false; // If no time is provided, return false
+
+        // Split time range into start and end times
+        const [startTime, endTime] = buildingTime.split('-').map(time => time.trim());
+        const currentTime = new Date();
+        const currentHours = currentTime.getHours();
+        const currentMinutes = currentTime.getMinutes();
+
+        // Helper to convert time (e.g., "8:00") into total minutes since midnight
+        function timeToMinutes(time) {
+            const [hours, minutes] = time.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        // Convert start, end, and current time to minutes
+        const startMinutes = timeToMinutes(startTime);
+        const endMinutes = timeToMinutes(endTime);
+        const nowMinutes = currentHours * 60 + currentMinutes;
+
+        // Handle cases where end time crosses midnight
+        if (endMinutes < startMinutes) {
+            return nowMinutes >= startMinutes || nowMinutes < endMinutes;
+        }
+
+        // Standard case: check if current time is between start and end
+        return nowMinutes >= startMinutes && nowMinutes <= endMinutes;
+    }
+
+    // UI Interaction Functions
+    function showLargePopup(entranceName, buildingName, entranceLink, hasRamp, isOpen) {
+        // Display detailed popup with entrance information
+        // Remove any existing popups
+        const existingPopup = document.querySelector('.large-popup');
+        if (existingPopup) existingPopup.remove();
+
+        // Create and add the overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'popup-overlay';
+        document.body.appendChild(overlay);
+        overlay.style.display = 'block';
+
+        // Create the large popup
+        const popup = document.createElement('div');
+        popup.className = 'large-popup';
+        popup.innerHTML = `
+            <button class="close-button">&times;</button>
+            <h3>${buildingName} Accessible Entrance</h3>
+            ${entranceLink ? `
+                <img 
+                    src="/frontend/src/PICS/entrance/${entranceLink.trim()}" 
+                    alt="${entranceName}" 
+                    style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 15px;"
+                >
+            ` : ''}
+            <div class="status-indicators">
+                ${hasRamp === 'true' ? 
+                    '<span>✅ This entrance has a ramp.</span>' : 
+                    '<span>❌ This entrance has no ramp.</span>'}
+                <br>
+                ${isOpen === 'true' ? 
+                    '<span>✅ This entrance is open for the public.</span>' : 
+                    '<span>❌ This entrance is not open to the public but may be open for staff or students within the faculty.</span>'}
+            </div>
+            <button class="popup-button" onclick="alert('Building info for ${buildingName}')">
+                Click to View Building Info
+            </button>
+        `;
+        document.body.appendChild(popup);
+
+        // Add close functionality
+        const closeButton = popup.querySelector('.close-button');
+        closeButton.onclick = () => {
+            popup.remove();
+            overlay.remove();
+        };
+
+        // Close on overlay click
+        overlay.onclick = () => {
+            popup.remove();
+            overlay.remove();
+        };
+    }
+
+    function applyFilter() {
+        const filterValue = document.getElementById('filter').value;
+        const pathDisplay = document.getElementById('pathDisplay');
+        
+        console.log('Filter value:', filterValue);
+        
+        // If there's an active path result, don't change the filter
+        if (pathDisplay && pathDisplay.innerHTML && document.getElementById('pathResults').style.display !== 'none') {
+            console.log('Path is active, skipping filter');
+            return;
+        }
+        
+        let filterArray;
+        
+        if (filterValue === 'ramp') {
+            // Check if entrance has a ramp
+            filterArray = ['==', ['get', 'desc'], 'RN'];
+            console.log('Applying ramp filter');
+        } else if (filterValue === 'open_now') {
+            const openBuildings = Object.entries(buildingsMap)
+                .filter(([code, building]) => checkOpenStatus(building.time))
+                .map(([code]) => code);
+            
+            console.log('Open buildings:', openBuildings);
+            
+            if (openBuildings.length > 0) {
+                filterArray = ['in', ['get', 'bname'], ['literal', openBuildings]];
+            } else {
+                filterArray = ['==', ['get', 'bname'], '']; // No matches
+            }
+        } else {
+            filterArray = ['!=', ['get', 'ename'], '']; // Show all
+        }
+        
+        console.log('Applying filter:', filterArray);
+        
+        if (map.getLayer('accessibleentrances-dpwyzg')) {
+            map.setFilter('accessibleentrances-dpwyzg', filterArray);
+            console.log('Filter applied successfully');
+        } else {
+            console.error('Layer not found: accessibleentrances-dpwyzg');
+        }
+    }
+
+    // Event Management Class
+    class EventManager {
+        // Handles event observation and notification for path finding
+        constructor() {
+            this.observers = [];
+        }
+
+        addObserver(observer) {
+            this.observers.push(observer);
+        }
+
+        notifyObservers(data) {
+            this.observers.forEach(observer => observer(data));
+        }
+    }
+
+    // Path Finding and Route Display
+    function findPath() {
+        // Process user input and request path from backend
+        // Notify observers that the path finding operation has started
+        findPathEventManager.notifyObservers("Find Path operation started");
+
+        const stopInputs = Array.from(document.querySelectorAll('.stop input'))
+            .map(input => input.value.trim())
+            .filter(value => value !== '');
+
+        if (stopInputs.length < 2) {
+            findPathEventManager.notifyObservers("Error: Not enough stops specified");
+            alert('Please enter at least 2 stops');
+            return;
+        }
+
+        // Convert building names to codes
+        const stopCodes = stopInputs.map(buildingName => window.buildingNameToCode[buildingName]);
+        findPathEventManager.notifyObservers(`Processing building codes: ${stopCodes.join(', ')}`);
+
+        fetch('http://localhost:8000/find_path', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ stops: stopCodes })
+        })
+        .then(response => {
+            if (!response.ok) {
+                findPathEventManager.notifyObservers(`HTTP error: ${response.status}`);
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            findPathEventManager.notifyObservers(`Path found successfully: ${data.path}`);
+            document.getElementById('pathResults').style.display = 'block';
+            if (data.success) {
+                const formattedPath = data.path.split(' ').join(' ➔ ');
+                const pathNodes = data.path.split(' ');
+                const durationInMinutes = (data.duration / 60).toFixed(1);
+                
+                document.getElementById('pathDisplay').innerHTML = `
+                    <h4>Path Details:</h4>
+                    <p><strong>Path:</strong> ${formattedPath}</p>
+                    <p><strong>Distance:</strong> ${data.distance} meters</p>
+                    <p><strong>Duration:</strong> ${durationInMinutes} minutes</p>
+                `;
+
+                // Filter markers
+                map.setFilter('accessibleentrances-dpwyzg', [
+                    'in',
+                    ['get', 'ename'],
+                    ['literal', pathNodes]
+                ]);
+
+                // Get coordinates for each node
+                const waypoints = pathNodes.map(node => {
+                    const entrance = entrancesData.find(e => e.ename === node);
+                    return [parseFloat(entrance.longitude), parseFloat(entrance.latitude)];
+                });
+
+                // Remove existing path layer if it exists
+                if (map.getSource('path-line')) {
+                    map.removeLayer('path-line');
+                    map.removeSource('path-line');
+                }
+
+                // Create the API request URL
+                const coordinates = waypoints.map(coord => coord.join(',')).join(';');
+                const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${coordinates}?geometries=geojson&access_token=${mapboxgl.accessToken}&alternatives=false&continue_straight=true&steps=true`;
+
+                // Fetch the walking route from Mapbox Directions API
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.routes && data.routes.length > 0) {
+                            const route = data.routes[0].geometry;
+
+                            map.addSource('path-line', {
+                                'type': 'geojson',
+                                'data': {
+                                    'type': 'Feature',
+                                    'properties': {},
+                                    'geometry': route
+                                }
+                            });
+
+                            map.addLayer({
+                                'id': 'path-line',
+                                'type': 'line',
+                                'source': 'path-line',
+                                'layout': {
+                                    'line-join': 'round',
+                                    'line-cap': 'round'
+                                },
+                                'paint': {
+                                    'line-color': getRandomPathColor(),
+                                    'line-width': 8,
+                                    'line-opacity': 0.9,
+                                    'line-blur': 3
+                                }
+                            }, 'accessibleentrances-dpwyzg');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching walking route:', error);
+                    });
+            } else {
+                document.getElementById('pathDisplay').innerHTML = `
+                    <h4>Error:</h4>
+                    <p>${data.error || 'Unknown error occurred'}</p>
+                `;
+            }
+        })
+        .catch(error => {
+            findPathEventManager.notifyObservers(`Error occurred: ${error.message}`);
+            console.error('Error:', error);
+            document.getElementById('pathResults').style.display = 'block';
+            document.getElementById('pathDisplay').innerHTML = `
+                <h4>Error:</h4>
+                <p>${error.message || 'Failed to connect to server'}</p>
+            `;
+        });
+    }
+
+    // Map Event Handlers
+    map.on('load', () => {
+        // Initialize map controls and event listeners
+        // Add zoom controls
+        map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+        
+        loadData();
+        
+        // Initialize filter
+        applyFilter();
+        
+        // Add filter change listener
+        document.getElementById('filter').addEventListener('change', applyFilter);
+        
+        // Your Layer ID
+        const tilesetLayer = 'accessibleentrances-dpwyzg';
+
+        // Add click event listener for the tileset layer
+        map.on('click', tilesetLayer, (e) => {
+            const feature = e.features[0];
+            const entranceName = feature.properties.ename;
+            const buildingCode = feature.properties.bname;
+            
+            const entrance = entrancesData.find(entry => 
+                entry.ename === entranceName && 
+                entry.bname === buildingCode
+            );
+            
+            const building = buildingsMap[buildingCode] || {};
+            const buildingName = building.name || "Unknown Building";
+            const buildingTime = building.time || "";
+            const isOpen = checkOpenStatus(buildingTime);
+            const hasRamp = entrance ? entrance.desc === 'RN' : false;
+
+            const popupContent = `
+                <div class="popup-container">
+                    <h3 class="popup-title">${buildingName}</h3>
+                    <p class="popup-text">Entrance: ${entranceName}</p>
+                    <div style="margin: 10px 0;">
+                        ${hasRamp ? '<img src="/frontend/src/PICS/ramp2.png" style="width:20px; margin-right: 10px;" alt="Ramp Available">' : ''}
+                        ${isOpen ? '<img src="/frontend/src/PICS/time.png" style="width:20px;" alt="Open Now">' : ''}
+                    </div>
+                    <button class="popup-button" onclick="showLargePopup('${entranceName}', '${buildingName}', '${entrance ? entrance['link'] : ''}', '${hasRamp}', '${isOpen}')">
+                        View More
+                    </button>
+                </div>
+            `;
+
+            new mapboxgl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(popupContent)
+                .addTo(map);
+        });
+
+        // Change cursor to pointer when hovering over the markers
+        map.on('mouseenter', tilesetLayer, () => {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', tilesetLayer, () => {
+            map.getCanvas().style.cursor = '';
+        });
+    });
+
+    // UI Helper Functions
+    function addStop() {
+        // Add new stop input field to the route
+        if (stopCount >= MAX_STOPS) {
+            alert('Maximum number of stops reached (5)');
+            return;
+        }
+
+        stopCount++;
+        const stopsContainer = document.getElementById('stops-container');
+        
+        const newStop = document.createElement('div');
+        newStop.className = 'stop';
+        newStop.innerHTML = `
+            <img src="/frontend/src/PICS/pin.png" alt="Pin Icon" class="pin-icon">
+            <input type="text" placeholder="Stop ${stopCount}" list="locations">
+        `;
+        
+        stopsContainer.appendChild(newStop);
+
+        // Hide the Add Stop button if max stops reached
+        if (stopCount >= MAX_STOPS) {
+            document.querySelector('.add-stop-btn').style.display = 'none';
+        }
+    }
+
+    function populateLocationsList() {
+        // Populate location dropdown with building names
+        const locationsList = document.getElementById('locations');
+        locationsList.innerHTML = '';
+        
+        // Create a map of "Building Name" -> "Building Code"
+        window.buildingNameToCode = {};
+        
+        buildingsData.forEach(building => {
+            if (building.code && building.name) {
+                const buildingName = building.name.trim();
+                const buildingCode = building.code.trim();
+                
+                const option = document.createElement('option');
+                option.value = buildingName;
+                locationsList.appendChild(option);
+                
+                // Store the mapping
+                window.buildingNameToCode[buildingName] = buildingCode;
+            }
+        });
+
+        console.log("Datalist populated with options:", locationsList.children.length);
+    }
+
+    // Add EventManager class before the findPath function
+    const findPathEventManager = new EventManager();
+    findPathEventManager.addObserver((message) => {
+        console.log('Path Finding:', message);
+    });
+
+    function getRandomPathColor() {
+        // Generate random color for path visualization
+        const colors = ['#0d60db', '#dbb90d', '#0ddb7f', '#db0d55'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+</script>
+
+
+<datalist id="locations"></datalist>
+
+<div id="path-results"></div>
+</body>
+</html>

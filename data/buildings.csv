@@ -1,0 +1,61 @@
+﻿code,name,time,dining,mpr,link
+3M,3M Centre,,,,
+AC,Althouse College,8:00-17:00,,,
+ACEB,Amit Chakma Engineering Building,,,TRUE,
+AFAR,Advanced Facility for Avian Research,8:00-17:00,,,
+AH,Alumni Hall,,,,
+AHB,Arts and Humanities Building,,,,
+BLWT,Boundary Layer Wind Tunnel Laboratory,,,,
+BMO,Bank of Montreal Building,,,,
+CHEM,Chemistry Building,,,,
+CHILDCARECENTRE,Child Care Centre,,,,
+CLINICALSKILLS,Clinical Skills Building,,,,
+COLLIP,Collip Medical Research Building,,,,
+DEL,Delaware Hall,,,,
+DSB,Dental Sciences Building,8:00-17:00,,,
+EC,Elbourne College,8:00-17:00,,TRUE,
+ELGIN,Elgin Hall,,,,
+ESSEXHALL,Essex Hall,,,,
+FIMS,Faculty of Information and Media Studies,8:00-00:00,,,
+GSB,Graphics Services Building,,,,
+HSB,Health Science Building,,Tim Hortons,,hsb1.jpg
+IGAB,International Graduate Affairs Building,,,,
+IVEY,Richard Ivey Building,7:00-15:00,Ivey Eatery; Starbucks,TRUE,ivey1.jpg; ivey2.jpg
+LAMB,Lambton Hall,,,,
+LAW,Law Building,,Chambers Café,,law1.jpg
+LH,Lawson Hall,,,,
+LONDONHALL,London Hall,,,,
+MB,Music Building,8:00-17:00,,,
+MC,Middlesex College,,The Grad Club,TRUE,mc1.png
+MOGENSON,Mogenson Building,,,,
+MSB,Medical Science Building,7:00-17:00,,TRUE,
+NCB,North Campus Building,8:00-17:00,,,
+NRC,NRC Centre,,,,
+NSC,Natural Sciences Centre,9:00-23:00,Einstein's Café; Tim Hortons; Pizza Pizza; Teriyaki Experience; Casa Burrito,TRUE,nsc1.jpg; nsc2.jpg; nsc3.jpg; nsc4.jpg; nsc5.jpg
+OHALL,Ontario Hall,,,,
+PAB,Physics and Astronomy Building,,,,
+PERTH,Perth Hall,,,,
+PHFM,Centre for Public Health and Family Medicine,,,,
+REC,Recreation Centre,6:30-22:00,Jugo Juice,,rec1.jpg
+RRI,Robarts Research Institute,,,,
+SCTC,Stiller Centre for Technology Commercialization,8:00-16:00,,,
+SDRI,Schulich Dentistry and Research Institute,,,,
+SEB,Spencer Engineering Building,8:00-17:00,DaVinci's Café ,TRUE,seb1.jpg
+SH,Somerville House,,Bento Sushi; Green Leaf Café; Quesada; Noodle Box,,sh1.jpg; sh2.jpg; sh3.jpg; sh4.jpg
+SMH,Saugeen-Maitland Hall,,,,
+SSC,Social Science Centre,9:00-18:00,,,
+STH,Stevenson Hall,,,,
+TC,Talbot College,,Noodles; Pizza Pizza,,tc1.jpg; tc2.jpg
+ALUMNISTAD,Alumni Stadium,,,,
+TEB,Thompson Engineering Building,,,TRUE,
+TH,Thames Hall,,,,
+UC,University College,,,,
+UCC,University Community Centre,8:00-17:00,Tim Hortons; Starbucks; Subway; The FIXX; Odd Burger; Paramount Fine Foods; ManchuWok The Wave; The Spoke; Jugo Juice; Noodles,TRUE,ucc1.jpg; ucc2.jpg; ucc3.jpg; ucc4.jpg; ucc5.jpg; ucc6.jpg; ucc7.jpg; ucc8.jpg; ucc9.jpg ucc10.jpg; ucc11.jpg; 
+VAC,Visual Arts Centre,8:00-17:00,,,
+WELDON,D.B. Weldon Library,8:00-3:00,Chatime,,weldon1.jpg
+WESTMINISTER,Westminster Hall,,,,
+WIRB,Western Interdisciplinary Research Building,8:30-16:00,,,
+WM,Windermere Manor Hotel,,,,
+WSC,Western Sciences Centre,,,,
+WSS,Western Student Services Building,,,,
+WSSB,Western Support Services Building,8:30-16:30,,,

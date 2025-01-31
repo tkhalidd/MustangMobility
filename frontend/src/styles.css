@@ -1,0 +1,765 @@
+/* General Reset */
+/* Define font weights for Open Sauce */
+@font-face {
+    font-family: 'Open Sauce';
+    src: url('../fonts/OS-light.woff2') format('woff2');
+    font-weight: 300; /* Light */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sauce';
+    src: url('../fonts/OS-Regular.woff2') format('woff2');
+    font-weight: 400; /* Regular */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sauce';
+    src: url('../fonts/OS-Medium.woff2') format('woff2');
+    font-weight: 500; /* Medium */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sauce';
+    src: url('../fonts/OS-SemiBold.woff2') format('woff2');
+    font-weight: 600; /* SemiBold */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sauce';
+    src: url('../fonts/OS-bold.woff2') format('woff2');
+    font-weight: 700; /* Bold */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sauce';
+    src: url('../fonts/OS-black.woff2') format('woff2');
+    font-weight: 900; /* Black */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Sugo Display';
+    src: url('../fonts/SP-light.woff2') format('woff2');
+    font-weight: 300; /* Light */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Sugo Display';
+    src: url('../fonts/SP-regular.woff2') format('woff2');
+    font-weight: 400; /* Regular */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Sugo Display';
+    src: url('../fonts/SP-bold.woff2') format('woff2');
+    font-weight: 700; /* Bold */
+    font-style: normal;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Sugo Display', sans-serif; /* Use Sugo Display for headings */
+    font-weight: 400; /* Use the bold weight */
+}
+
+/* Paragraphs and Inputs */
+p, input, button, select {
+    font-family: 'Open Sauce', sans-serif; /* Use Open Sauce for body text */
+    font-weight: 400; /* Use the regular weight */
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+/* Flex Layout for Main Body */
+body {
+    display: flex; /* Sidebar + Main Content */
+    height: 100vh;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 100px; /* Fixed width */
+    background-color: #6a30fc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.sidebar img {
+    width: 40px;
+    height: 40px;
+    margin: 30px 0;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.sidebar img:hover {
+    transform: scale(1.2);
+}
+
+/* Main Container Layout */
+.main-container {
+    display: flex; /* Input Panel + Map Container */
+    flex-grow: 1;
+    height: 100%;
+}
+
+/* Input Panel */
+.input-panel {
+    width: calc((100% - 120px) * 1/3); /* 1/3 of remaining width */
+    background-color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    box-sizing: border-box;
+    border-right: 1px solid #ddd;
+}
+
+.input-panel h2 {
+    margin: 0;
+    font-size: 1.5em;
+    color: #333;
+}
+
+.input-row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-row select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    appearance: none; /* Remove default arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('../PICS/dropdown.png'); /* Add your triangle image */
+    background-repeat: no-repeat;
+    background-position: right 10px center; /* Position the arrow */
+    background-size: 16px; /* Made bigger */
+    padding-right: 35px; /* Increased padding to accommodate bigger arrow */
+}
+
+/* Remove default arrow in IE */
+select::-ms-expand {
+    display: none;
+}
+
+.stop {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pin-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.stop input {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+/* Find Path Button */
+.find-path {
+    margin-top: 20px;
+    background-color: #6a30fc;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 20px;
+    font-size: 1em;
+    cursor: pointer;
+    text-align: center;
+}
+
+.find-path:hover {
+    background-color: #5a28dc;
+}
+
+/* Map Container */
+/* Map Container */
+.map-container {
+    flex-grow: 1; /* Take the remaining space */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white; /* Ensure container has a background */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Map Box */
+#map {
+    width: 100%; /* Fill container's width */
+    height: 100%; /* Fill container's height */
+    border-radius: 20px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Shadow effect */
+    background-color: #eaeaea; /* Ensure a fallback color for the map */
+
+}
+
+/* Add opacity for tree/terrain layers */
+#map .terrain-trees {
+    opacity: 0.4; /* Lower opacity for forest/terrain layer */
+}
+
+/* Optional: Custom fill-extrusion styling for buildings */
+#map .fill-extrusion {
+    opacity: 0.6; /* Match your 3D building transparency */
+    fill-color: #aaa; /* Greyish buildings */
+}
+
+/* Popup Styling */
+.mapboxgl-popup {
+    border-radius: 10px; /* Rounds popup corners */
+    overflow: hidden; /* Ensures content respects the border radius */
+}
+
+.mapboxgl-popup-content {
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 10px; /* Rounded corners */
+    padding: 10px;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.popup-container {
+    text-align: left;
+}
+
+.popup-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 5px 0;
+    color: #444;
+}
+
+.popup-text {
+    font-size: 0.9em;
+    margin: 5px 0;
+}
+
+.popup-icons {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Adds spacing between icons */
+    margin-top: 10px;
+}
+
+.popup-icon {
+    width: 25px;
+    height: 25px;
+    display: inline-block;
+    border-radius: 50%; /* Circular icons */
+    background-color: #eee;
+    padding: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* General Popup Styling */
+.mapboxgl-popup-content {
+    border-radius: 10px;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.popup-button {
+    background-color: #6a30fe;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    text-align: center;
+    display: inline-block;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+.popup-button:hover {
+    background-color: #5a28dc;
+}
+
+/* Large Popup Styling */
+.large-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+}
+
+.large-popup img {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    margin: 20px 0;
+    object-fit: cover;
+}
+
+.large-popup h3 {
+    font-size: 24px;
+    margin: 0 0 20px 0;
+    color: #333;
+}
+
+.large-popup .close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 5px;
+}
+
+.large-popup .close-button:hover {
+    color: #333;
+}
+
+.status-indicators {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 15px 0;
+    text-align: left;
+}
+
+.status-indicators span {
+    display: block;
+    line-height: 1.4;
+    margin: 5px 0;
+}
+
+/* Add this overlay style for the grey background */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    display: none;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: flex-start; /* Changed from center to flex-start for better alignment with longer text */
+    gap: 8px;
+    color: #666;
+    margin-bottom: 10px; /* Added spacing between indicators */
+}
+
+.status-indicator span {
+    flex: 1;
+    line-height: 1.4; /* Better line height for readability */
+}
+
+/* Add Stop Button Styles */
+.add-stop-btn {
+    background: none;
+    border: 2px dashed #6C63FF;
+    color: #6C63FF;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 10px 0;
+    width: 100%;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.add-stop-btn:hover {
+    background: #6C63FF15;
+}
+
+#stops-container {
+    margin-bottom: 10px;
+}
+
+input[list] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-image: url('../PICS/dropdown.png');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    padding-right: 35px;
+    /* Remove the default dropdown arrow */
+    &::-webkit-calendar-picker-indicator {
+        display: none !important;
+        -webkit-appearance: none;
+    }
+}
+
+/* Remove default arrow in IE and other browsers */
+select::-ms-expand {
+    display: none;
+}
+
+/* Optional: Style the datalist dropdown */
+datalist {
+    width: 100%;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Style the zoom controls */
+.mapboxgl-ctrl-zoom-in,
+.mapboxgl-ctrl-zoom-out,
+.mapboxgl-ctrl-compass {
+    background-color: #6a30fc !important; /* Theme color */
+    border: none !important; /* Remove border */
+    border-radius: 4px !important; /* Rounded corners */
+    box-shadow: none !important; /* Remove shadow */
+    outline: none !important; /* Remove outline */
+}
+
+/* Add space between compass and zoom-out */
+.mapboxgl-ctrl-group button.mapboxgl-ctrl-compass {
+    margin-bottom: 10px !important; /* Add space below the compass */
+}
+
+/* Add consistent spacing between zoom buttons */
+.mapboxgl-ctrl-group button + button {
+    margin-top: 5px !important; /* Add space between other buttons */
+}
+
+/* Hover styles */
+.mapboxgl-ctrl-zoom-in:hover,
+.mapboxgl-ctrl-zoom-out:hover,
+.mapboxgl-ctrl-compass:hover {
+    background-color: white !important; /* White on hover */
+    color: #6a30fc !important; /* Text color */
+}
+
+/* Make the icons white by default and purple on hover */
+.mapboxgl-ctrl-icon {
+    filter: brightness(0) invert(1) !important;
+}
+
+.mapboxgl-ctrl-zoom-in:hover .mapboxgl-ctrl-icon,
+.mapboxgl-ctrl-zoom-out:hover .mapboxgl-ctrl-icon,
+.mapboxgl-ctrl-compass:hover .mapboxgl-ctrl-icon {
+    filter: none !important; /* Original color on hover */
+}
+
+/* Add spacing between zoom controls and compass */
+.mapboxgl-ctrl-group {
+    background-color: transparent !important;
+    padding-bottom: 0px; /* Adjust this value for more spacing */
+}
+
+/* Space between zoom in and zoom out */
+.mapboxgl-ctrl-group > button + button {
+    margin-top: 2px !important;  
+    margin-bottom: 10px;
+}
+
+/* Keep your existing zoom control styles */
+.mapboxgl-ctrl-zoom-in,
+.mapboxgl-ctrl-zoom-out {
+    background-color: #6a30fc !important;
+    border: none !important;
+    border-radius: 4px !important;
+    box-shadow: 0 0 0 0px rgba(0,0,0,0.1) !important;
+}
+
+/* Remove the outline around the buttons */
+.mapboxgl-ctrl-group {
+    background-color: transparent !important; /* Ensure no background */
+    box-shadow: none !important; /* Remove shadow */
+    border: none !important; /* Remove borders */
+}
+
+/* Remove the white outline from buttons */
+.mapboxgl-ctrl-zoom-in,
+.mapboxgl-ctrl-zoom-out,
+.mapboxgl-ctrl-compass {
+    outline: none !important; /* Remove focus outline */
+    background-color: #6a30fc !important; /* Match theme color */
+    border: none !important; /* Remove any borders */
+    box-shadow: none !important; /* Remove box shadows */
+}
+
+/* Hover styles for controls */
+.mapboxgl-ctrl-zoom-in:hover,
+.mapboxgl-ctrl-zoom-out:hover,
+.mapboxgl-ctrl-compass:hover {
+    background-color: white !important; /* White on hover */
+    color: #6a30fc !important; /* Text color */
+}
+
+/* Add spacing between compass and zoom-out button */
+.mapboxgl-ctrl-group button.mapboxgl-ctrl-compass {
+    margin-bottom: 17px !important; /* Add space below compass */
+}
+
+/* Add consistent spacing between buttons */
+.mapboxgl-ctrl-group button + button {
+    margin-top: 3px !important; /* Space between buttons */
+}
+
+.path-results {
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.path-results p {
+    margin: 10px 0;
+    line-height: 1.4;
+}
+
+.path-results button {
+    margin-top: 15px;
+    padding: 8px 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.path-results button:hover {
+    background: #0056b3;
+}
+
+.results-panel {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.route-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+}
+
+#pathDisplay {
+    font-size: 1.1em;
+    color: #333;
+    margin: 10px 0;
+}
+
+.route-stats div {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.add-stop-btn {
+    background: none;
+    border: 2px dashed #6C63FF;
+    color: #6C63FF;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 10px 0;
+    width: 100%;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.add-stop-btn:hover {
+    background: #6C63FF15;
+}
+
+#stops-container {
+    margin-bottom: 10px;
+}
+
+/* Update base font sizes and add consistent styling */
+body {
+    font-family: 'Open Sauce', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+}
+
+/* Update heading styles */
+h2 {
+    font-family: 'Sugo Display', sans-serif;
+    font-size: 2.2em;
+    font-weight: 600;
+    margin-bottom: 25px;
+    color: #222;
+}
+
+h3 {
+    font-family: 'Sugo Display', sans-serif;
+    font-size: 1.8em;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+h4 {
+    font-family: 'Sugo Display', sans-serif;
+    font-size: 1.4em;
+    font-weight: 500;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+/* Update input and select styles */
+input, select {
+    font-family: 'Open Sauce', sans-serif;
+    font-size: 1.1em;
+    padding: 12px 15px;
+}
+
+/* Update button styles */
+button {
+    font-family: 'Open Sauce', sans-serif;
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+/* Update popup styles */
+.mapboxgl-popup-content {
+    font-family: 'Open Sauce', sans-serif;
+    font-size: 1.1em;
+    padding: 20px;
+}
+
+.popup-title {
+    font-family: 'Sugo Display', sans-serif;
+    font-size: 1.6em;
+    font-weight: 600;
+}
+
+.popup-text {
+    font-size: 1.1em;
+    margin: 10px 0;
+}
+
+/* Update large popup styles */
+.large-popup {
+    padding: 40px;
+}
+
+.large-popup h3 {
+    font-size: 2em;
+    margin-bottom: 25px;
+}
+
+.status-indicators {
+    font-size: 1.1em;
+    gap: 20px;
+}
+
+/* Update results panel styles */
+.results-panel {
+    padding: 25px;
+}
+
+#pathDisplay {
+    font-size: 1.2em;
+    line-height: 1.6;
+}
+
+/* Update filter dropdown */
+.input-row select {
+    font-size: 1.1em;
+    padding: 12px 35px 12px 15px;
+}
+
+/* Update stop inputs */
+.stop input {
+    font-size: 1.1em;
+    padding: 12px 15px;
+}
+
+/* Update find path button */
+.find-path {
+    font-size: 1.2em;
+    padding: 15px;
+    font-weight: 500;
+}
+
+/* Update add stop button */
+.add-stop-btn {
+    font-size: 1.1em;
+    padding: 12px;
+}
+
+/* Update filter label styling */
+.input-row label {
+    font-family: 'Open Sauce', sans-serif;
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+/* Update status indicators in popups */
+.status-indicators span {
+    font-family: 'Open Sauce', sans-serif;
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Update building info text */
+.popup-container p {
+    font-family: 'Open Sauce', sans-serif;
+    font-size: 1.1em;
+    line-height: 1.5;
+    color: #333;
+    margin: 8px 0;
+}
+
+/* Update datalist options */
+datalist option {
+    font-family: 'Open Sauce', sans-serif;
+    font-size: 1.1em;
+    padding: 8px;
+}
