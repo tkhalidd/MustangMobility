@@ -103,7 +103,6 @@ def calculate_distances_with_building_codes(input_df, output_file, api_key):
     except Exception as e:
         print(f"An error occurred while writing to the file: {e}")
 
-# Example usage (assuming API key is provided)
-api_key = "AIzaSyCop40UsnT5jUj7X-ndQeShBpzXX98DATE"  # Replace with actual API key
+api_key = ""  
 output_file_path = '//precalculated_distances_with_building_codes.csv'
 calculate_distances_with_building_codes(df, output_file_path, api_key)
